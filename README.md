@@ -15,3 +15,6 @@ Terminal2 :
 ```
 ros2 run image_sender sender
 ```
+
+
+<img src="image_switcher.gif" width="500">
