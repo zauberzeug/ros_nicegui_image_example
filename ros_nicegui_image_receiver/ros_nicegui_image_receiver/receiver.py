@@ -5,7 +5,7 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 import cv2
 
-from nicegui import app, globals, run, ui
+from nicegui import app, Client, ui_run, ui
 import threading
 from pathlib import Path
 from rclpy.executors import ExternalShutdownException
@@ -23,7 +23,7 @@ class ImageReceiverNode(Node):
         self.show_img1 = True
 
         #this is where we add nicegui elements
-        with globals.index_client:
+        with Client.auto_index_client:
             #create a row with a width of 40%
             with ui.row().style('width: 40%;'):
                 #create an empty interactive_image element
@@ -86,7 +86,7 @@ def main():
 app.on_startup(lambda: threading.Thread(target=ros_main).start())
 
 #This is for the automatic reloading by nicegui/fastapi
-run.APP_IMPORT_STRING = f'{__name__}:app'
+ui_run.APP_IMPORT_STRING = f'{__name__}:app'
 
 #We add reload dirs to just watch changes in our package
 ui.run(title='Img show with NiceGUI',uvicorn_reload_dirs=str(Path(__file__).parent.resolve()))
