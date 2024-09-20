@@ -77,7 +77,6 @@ def ros_main() -> None:
         pass
     finally:
         image_receiver.destroy_node()
-        rclpy.shutdown()
 
 # Starting the ros node in a thread managed by nicegui. It will restarted with "on_startup" after a reload.
 # It has to be in a thread, since NiceGUI wants the main thread for itself.
