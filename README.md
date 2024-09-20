@@ -10,7 +10,7 @@ If the button is pressed, it will display the next picture on the second topic a
 
 Terminal1 :
 ```
-python3 receiver
+python3 receiver.py
 ```
 In this version of this tutorial, we start the script directly with python. 
 In ROS2, you can run nodes directly with python3 because the ROS2 initialization uses standard Python APIs, but you must source your ROS2 distribution beforehand to ensure the environment is correctly set.
