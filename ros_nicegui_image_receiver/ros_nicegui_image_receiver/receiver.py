@@ -13,36 +13,36 @@ import base64
 class ImageReceiverNode(Node):
     def __init__(self) -> None:
         super().__init__('image_receiver_node')
-        #create two subscriptions for the two images
+        # Create two subscriptions for the two images
         self.subscription1 = self.create_subscription(Image, 'sender/im1', self.image_callback1, 10)
         self.subscription2 = self.create_subscription(Image, 'sender/im2', self.image_callback2, 10)
-        #adding CV bridge for image processing
+        # Adding CV bridge for image processing
         self.cv_bridge = CvBridge()
-        #this is for switching between the two images
+        # Control variable to switch between the two images
         self.show_img1 = True
 
-        #this is where we add nicegui elements
+        # Add NiceGUI elements
         with Client.auto_index_client:
-            #create a row with a width of 40%
+            # Create a row with a width of 40%
             with ui.row().style('width: 40%;'):
-                #create an empty interactive_image element
+                # Create an empty interactive_image element
                 self.sub_image = ui.interactive_image()
-                #create a button to switch between the images, it calls the switch_image function
+                # Create a button to switch between the images, it calls the switch_image function
                 ui.button("Switch image", on_click=lambda: self.switch_image())
 
     def switch_image(self) -> None:
-        #a simple function to tigger the control variable for the image
+        # A simple function to trigger the control variable for the image
         self.show_img1 = not self.show_img1
         return
 
     def image_callback1(self, msg) -> None:
-        #check if the first image should be shown
+        # Check if the first image should be shown
         if self.show_img1:
-            #convert the image to a cv::Mat
+            # Convert the image to a cv::Mat
             image = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
-            #encode the image to base64
+            # Encode the image to base64
             base64_image = self.encode_image_to_base64(image)
-            #set the image source to the base64 string to display it
+            # Set the image source to the base64 string to display it
             self.sub_image.set_source(f'data:image/png;base64,{base64_image}')
         return
 
@@ -57,18 +57,17 @@ class ImageReceiverNode(Node):
             self.sub_image.set_source(f'data:image/png;base64,{base64_image}')
         return
     
-    def encode_image_to_base64(self, image) -> None:
+    def encode_image_to_base64(self, image) -> str:
         # Convert image to binary format
         _, image_data = cv2.imencode('.png', image)  
-        # encode the binary image to base64
+        # Encode the binary image to base64
         base64_image = base64.b64encode(image_data).decode('utf-8')
-        #return the base64 string
+        # Return the base64 string
         return base64_image
 
 def ros_main() -> None:
-    #Standart ROS2 node initialization
+    # Standard ROS2 node initialization
     print('Starting ROS2...', flush=True)
-
     rclpy.init()
     image_receiver = ImageReceiverNode()
 
@@ -77,9 +76,9 @@ def ros_main() -> None:
     except ExternalShutdownException:
         pass
 
-#Starting the ros node in a thread managed by nicegui. It will restarted with "on_startup" after a reload.
-#It has to be in a thread, since NiceGUI wants the main thread for itself.
+# Starting the ros node in a thread managed by nicegui. It will restarted with "on_startup" after a reload.
+# It has to be in a thread, since NiceGUI wants the main thread for itself.
 app.on_startup(lambda: threading.Thread(target=ros_main).start())
 
-#We add reload dirs to just watch changes in our package
+# We add reload dirs to just watch changes in our package
 ui.run(title='Img show with NiceGUI', uvicorn_reload_dirs=str(Path(__file__).parent.resolve()))
