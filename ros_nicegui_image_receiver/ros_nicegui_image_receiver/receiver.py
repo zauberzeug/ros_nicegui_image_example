@@ -1,11 +1,10 @@
-
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 import cv2
 
-from nicegui import app, Client, ui_run, ui
+from nicegui import app, Client, ui
 import threading
 from pathlib import Path
 from rclpy.executors import ExternalShutdownException
@@ -78,15 +77,9 @@ def ros_main() -> None:
     except ExternalShutdownException:
         pass
 
-def main():
-    pass # NOTE: This is originally used as the ROS entry point, but we give the control of the node to NiceGUI.
-
 #Starting the ros node in a thread managed by nicegui. It will restarted with "on_startup" after a reload.
 #It has to be in a thread, since NiceGUI wants the main thread for itself.
 app.on_startup(lambda: threading.Thread(target=ros_main).start())
 
-#This is for the automatic reloading by nicegui/fastapi
-ui_run.APP_IMPORT_STRING = f'{__name__}:app'
-
 #We add reload dirs to just watch changes in our package
-ui.run(title='Img show with NiceGUI',uvicorn_reload_dirs=str(Path(__file__).parent.resolve()))
+ui.run(title='Img show with NiceGUI', uvicorn_reload_dirs=str(Path(__file__).parent.resolve()))
